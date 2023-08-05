@@ -170,3 +170,46 @@ chkconfig httpd on
 terraform console - Запускает консоль
 templatefile("my.tpl",{f_name = "John", l_name = "Os", names = ["Vasja","Petja","Tom","Peter","Uta" ] }) - выведет что будет изменено
 ```
+**LifeCycle - AWS**
+```
+не дает удалять сервер или компоненты
+lifecycle {
+prevent_destroy = true
+}
+
+игнорирует изменения и не перезапускает сервер
+lifecycle {
+ignore_changes = ["user_date"]
+}
+
+Создаем и привязываем статический ip и настройка - сначало поднимаем, потом убиваем сервер
+resource "aws_eip" "my_static_ip" {
+instance = aws_instance.my_server.id
+}
+lifecycle {
+create_before_destroy = true
+}
+```
+**outputs.tf**
+```
+output "internal_ip_address_vm-1" {
+  value = yandex_compute_instance.vm-1.network_interface.0.ip_address
+}
+output "external_ip_address_vm-1" {
+  value = yandex_compute_instance.vm-1.network_interface.0.nat_ip_address
+}
+```
+```
+terraform show - покажет что получилось apply в том числе и outputs
+```
+**Порядок создания Ресурсов**
+```
+depends_on = [yandex_compute_instance.vm-1, server_name2]
+```
+**Получение данных с помощью Data Source**
+
+https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs/data-sources/
+
+
+
+
