@@ -230,5 +230,48 @@ default = "standard-v3"
 terraform apply -var="platform_id=standart-v2" - при запуске
 
 EXPORT TF_VAR_platform_id=standart-v2 - пишем в сессию терминала и можем при запуске ничего не вводить, терраформ подхватит сам
+ent | grep TF_VAR_ - смотрим
+unset TF_VAR_platform_id - удаляет var из сессии
 ```
+terraform.tfvars - приоритетнее variables.tf - может использоваться для продакшена
+
+**Локальные Переменные - locals**
+```
+Создаем из переменных в variables
+locals {
+full_name = "${var.environment} - ${var.project_name}"
+}
+
+Используем
+Project = local.full.name
+```
+**Запуск локальных команд - exec-local** (на компе с терраформом)
+```
+resource "null_resource" "command1" {
+    provisioner "local-exec" {
+        command = "echo Terraform START: $(date) >> log.txt"
+    }
+}
+Запуск через Python
+resource "null_resource" "command2" {
+    provisioner "local-exec" {
+        command = "print('Hello World!')"
+        interpreter = ["python", "-c"]
+    }
+}
+
+resource "null_resource" "command2" {
+    provisioner "local-exec" {
+        command = "echo $NAME1 $NAME2 $NAME3 >> names.txt"
+        environment {
+          NAME1 = "Vasya"
+          NAME2 = "Petja"
+          NAME3 = "Tanja"
+        }
+    }
+}
+
+provisioner можно запихнуть в создание компьютера и он выведет при создании эту команду
+```
+
 
