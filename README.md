@@ -52,7 +52,7 @@ provider "yandex" {
   token     = "oauth_token"
   cloud_id  = "cloud_id"
   folder_id = "folder_id"
-  zone = "ru-central1-a"
+  zone = "ru-central1-b"
 }
 resource "yandex_compute_instance" "vm-1" {
   name        = "terraform1"
@@ -210,6 +210,25 @@ depends_on = [yandex_compute_instance.vm-1, server_name2]
 
 https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs/data-sources/
 
+**Использование Переменных - variables**
 
+variables.tf
+```
+variable "region" {
+description = "Please enter Region AWS"
+default     = "ca-central-1"
+}
 
+variable "platform_id" {
+description = "Enter platform Yandex"
+type = string
+default = "standard-v3"
+}
+```
+**Автозаполнение Переменных - tfvars**
+```
+terraform apply -var="platform_id=standart-v2" - при запуске
+
+EXPORT TF_VAR_platform_id=standart-v2 - пишем в сессию терминала и можем при запуске ничего не вводить, терраформ подхватит сам
+```
 
