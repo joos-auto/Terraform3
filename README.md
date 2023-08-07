@@ -1,7 +1,7 @@
 # Terraform3
 Terraform
 
-```
+```bash
 wget https://hashicorp-releases.yandexcloud.net/terraform/1.5.4/terraform_1.5.4_linux_amd64.zip
 zcat terraform_1.5.4_linux_amd64.zip > terraform
 chmod -x terraform
@@ -22,7 +22,7 @@ provider_installation {
 }
 ```
 main.tf
-```
+```tf
 terraform {
   required_providers {
     yandex = {
@@ -40,7 +40,7 @@ provider "yandex" {
 terraform init
 ```
 **main.tf - пример**
-```
+```tf
 terraform {
   required_providers {
     yandex   = {
@@ -89,7 +89,7 @@ resource "yandex_vpc_subnet" "subnet-1" {
 
 ```
 **Создаем 3 компьютера**
-```
+```tf
 variable "name" {
     default = ["name1", "name2", "name3"]
 }
@@ -106,7 +106,7 @@ resource "yandex_compute_instance" "vm-1" {
 
 ```
 **Или**
-```
+```tf
 resource "yandex_compute_instance" "vm-1" {
   count = 3
   name  = "terr-${count.index}"
@@ -118,7 +118,7 @@ resource "yandex_compute_instance" "vm-1" {
   }
 ```
 **Подключаем исполняемый файл**
-```
+```tf
   metadata = {
     user-data = "${file("./my.sh")}"
   }
@@ -136,7 +136,7 @@ sudo service httpd start
 chkconfig httpd on
 ```
 **Использование Динамичных внешних файлов - templatefile**
-```
+```tf
   metadata = {
     user-data = templatefile("my.tpl",{
     f_name = "John",
@@ -146,7 +146,7 @@ chkconfig httpd on
   }
 ```
 my.tpl
-```
+```tpl
 #!/bin/bash
 cat /etc/*rel*
 yum -y update
@@ -171,7 +171,7 @@ terraform console - Запускает консоль
 templatefile("my.tpl",{f_name = "John", l_name = "Os", names = ["Vasja","Petja","Tom","Peter","Uta" ] }) - выведет что будет изменено
 ```
 **LifeCycle - AWS**
-```
+```tf
 не дает удалять сервер или компоненты
 lifecycle {
 prevent_destroy = true
@@ -191,7 +191,7 @@ create_before_destroy = true
 }
 ```
 **outputs.tf**
-```
+```tf
 output "internal_ip_address_vm-1" {
   value = yandex_compute_instance.vm-1.network_interface.0.ip_address
 }
@@ -213,7 +213,7 @@ https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs/data-sou
 **Использование Переменных - variables**
 
 variables.tf
-```
+```tf
 variable "region" {
 description = "Please enter Region AWS"
 default     = "ca-central-1"
@@ -236,7 +236,7 @@ unset TF_VAR_platform_id - удаляет var из сессии
 terraform.tfvars - приоритетнее variables.tf - может использоваться для продакшена
 
 **Локальные Переменные - locals**
-```
+```tf
 Создаем из переменных в variables
 locals {
 full_name = "${var.environment} - ${var.project_name}"
@@ -246,7 +246,7 @@ full_name = "${var.environment} - ${var.project_name}"
 Project = local.full.name
 ```
 **Запуск локальных команд - exec-local** (на компе с терраформом)
-```
+```tf
 resource "null_resource" "command1" {
     provisioner "local-exec" {
         command = "echo Terraform START: $(date) >> log.txt"
@@ -273,5 +273,103 @@ resource "null_resource" "command2" {
 
 provisioner можно запихнуть в создание компьютера и он выведет при создании эту команду
 ```
+**Использовние Conditions и Lookups**
+
+**Conditions**
+```tf
+variable "env" {
+  default = "prod"
+}
+
+ platform_id = var.env == "prod" ? "standard-v3" : "standard-v2"
+
+count = var.env == "prod" ? 1 : 0
+```
+**Lookups**
+```tf
+variable "look" {
+    default = {
+        "prod" = "standard-v3"
+        "staging" = "standard-v2"
+        "dev" = "standard-v1"
+    }
+
+platform_id = lookup(var.look, "prod") = platform_id = lookup(var.look, var.env)
+
+```
+**Использование циклов - count, for**
+
+**count**
+```tf
+variable "aws_users" {
+  default = ["petja", "vasja", "kolja", "otto", "maga", "john", "joos"]
+}
+
+
+resource "aws_iam_user" "users" {
+  count = length(var.aws_users)
+  name = element(var.aws_users, count.index)
+}
+```
+**for**
+```tf
+output "created_iam_users_all" {
+  value = aws_iam_user.users
+}
+
+output "created_iam_users_id" {
+  value = aws_iam_user.users[*].id
+}
+
+output "created_iam_users_custom" {
+  value = [
+    for user in aws_iam_user.users:
+      "Username: ${user.name} has ARN:${user.arn}"
+  ]
+}
+
+output "created_iam_users_custom" {
+  value = [
+    for user in aws_iam_user.users:
+       user.unique_id => user.id
+  ]
+}
+
+output "created_iam_users_custom" {
+  value = [
+    for x in aws_iam_user.users:
+      x.user
+    if length(x.name) == 4
+  ]
+}
+
+output "server_id_ip" {
+  value = {
+    for server in aws_instance.servers :
+      server.id => server.public.ip
+  }
+}
+
+output "all_info_server" {
+  value = yandex_compute_instance.vm-1[*]
+}
+
+output "id_ip_servers" {
+  value = {
+    for server in yandex_compute_instance.vm-1:
+    server.id => server.network_interface.0.nat_ip_address
+  }
+}
+```
+
+
+
+
+
+
+
+
+
+
 
 
