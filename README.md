@@ -429,6 +429,14 @@ for i in $(terraform state list); do terraform state mv -state-out="terraform.tf
 
 terraform state push terraform.tfstate - перезаписывает удаленный файл из локального
 ```
-
+**Terraform Workspaces**
+```
+terraform workspace - используем для тестирования, проверки перед продакшеном,при создании нового workspace терраформ создаст еще раз ресурсы, они будут находится в другом workspace и не пересекаться с default
+terraform workspace show - покажет текущий workspace
+terraform workspace list - покажет все workspaces 
+terraform workspace new workspace_name - создаем новый workspace с именем workspace_name
+terraform workspace select - переходим в workspace
+terraform workspace delete - удаляем workspace
+```
 
 
