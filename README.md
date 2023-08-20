@@ -383,8 +383,40 @@ terraform {
   }
 }
 ```
+**Создание Модулей**
 
+https://cloud.yandex.ru/docs/tutorials/infrastructure-management/terraform-modules
 
+https://github.com/terraform-yc-modules
+
+**Global Variables**
+
+Делаем outputs через бакеты и потом обращаемся к ним.
+
+https://www.youtube.com/watch?v=nFmOqZxah_Q&list=PLg5SS_4L6LYujWDTYb-Zbofdl44Jxb2l8&index=34
+
+**Как управлять ресурсами созданными вручную**
+```
+terraform import aws_instans.myname server-id
+
+terraform import yandex_compute_instance.test epdsei3idc7heqpqonis
+```
+Создает файл .tfstate, но в данной версии не меняет main.tf, для дальнейшей работы надо редактировать main.tf
+```
+terraform apply
+```
+Смотрим ошибки которые выдает - добавляем нужное, потом смотрим из-за чего хочет убить сервер и правим файл чтобы apply был без изменений
+
+**Как пересоздать ресурс до v0.15.2**
+```
+terraform taint yandex_compute_instance.vm
+помечаем ресурс taint - при следующем apply терраформ удалит и создаст его
+```
+**Как пересоздать ресурс после v0.15.2**
+```
+terraform apply -replace  yandex_compute_instance.vm
+сразу пересоздает ресурс
+```
 
 
 
