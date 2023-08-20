@@ -417,7 +417,18 @@ terraform taint yandex_compute_instance.vm
 terraform apply -replace  yandex_compute_instance.vm
 сразу пересоздает ресурс
 ```
+**terraform state команды**
+```
+terraform state show yandex_compute_instance.vm - покажет конфигурацию выбранного ресурса
+terraform state list - покажет все ресурсы которые есть
+terraform state pull - покажет все конфигурации по всем ресурсам
+terraform state rm yandex_vpc_network.network-1 -  удаление ресурса из удаленного репозитория
+terraform state mv -state-out="terraform.tfstate" yandex_vpc_network.network-1 yandex_vpc_network.network-1 - перемещение (и удаление) из удаленного файла (в бакете) в локальный terraform.tfstate
 
+for i in $(terraform state list); do terraform state mv -state-out="terraform.tfstate" $i $i; done - в linux перебираем все ресурсы и перемещаем их в локальный terraform.tfstate
+
+terraform state push terraform.tfstate - перезаписывает удаленный файл из локального
+```
 
 
 
