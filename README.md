@@ -438,5 +438,21 @@ terraform workspace new workspace_name - создаем новый workspace с 
 terraform workspace select - переходим в workspace
 terraform workspace delete - удаляем workspace
 ```
+**Terraform Custom Provider Domino's Pizza**
 
+https://github.com/nat-henderson/terraform-provider-dominos
+
+https://nat-henderson.github.io/terraform-provider-dominos/
+
+Как указать кастомного провайдера
+```
+terraform {
+  required_providers{
+    dominos = {
+      source = "daminos.edu/myorg/dominos" // ~/.terraform.d/plugins/dominos.com/myorg/dominos/1.0/linux_amd64/
+      version = "~>1.0"
+    }
+  }
+}
+```
 
