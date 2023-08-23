@@ -455,4 +455,12 @@ terraform {
   }
 }
 ```
+**Как импортировать ресурсы полуавтоматически используя блок import**
+```
+import {
+  id = "instance ID"
+  to = "yandex_compute_instance.vm"
+}
 
+terraform plan -generate-config-out=generated.tf
+```
